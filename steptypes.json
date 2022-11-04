@@ -1,0 +1,73 @@
+{
+    "step-types": {
+        "script-module-step": [{
+            "@type-id":"custom.Tallio-Upload",
+            "@supports-parallel-execution":"false",
+            "@supports-site-context":"true",
+            "@supports-organization-context":"true",
+            "description":"Uploads products to the SFTP server.",
+            "module":"int_tallio/cartridge/scripts/jobs/tallioUpload.js",
+            "function":"execute",
+            "transactional":"false",
+            "timeout-in-seconds":"10000",
+            "parameters":
+            {
+                "parameter": [{
+                    "@name":"Enabled",
+                    "@type":"boolean",
+                    "@required":"false",
+                    "@trim":"false",
+                    "description":"Enable Upload Products"
+                }]
+            },
+            "status-codes": {
+                "status":  [{
+                    "@code": "ERROR",
+                    "description": "Used when the step failed with an error."
+                }, {
+                    "@code": "OK",
+                    "description": "Used when the step finished successfully."
+                }]
+            }
+       }],
+        "chunk-script-module-step":[{
+            "@type-id": "custom.Tallio-Product-Export",
+            "@supports-parallel-execution": "false",
+            "@supports-site-context": "true",
+            "@supports-organization-context": "false",
+            "description": "Generates and uploads Product Feed a for the current site.  A separate feed is created for each site.",
+            "module": "int_tallio/cartridge/scripts/jobs/tallioProductExport.js",
+            "before-step-function": "beforeStep",
+            "total-count-function": "getTotalCount",
+            "before-chunk-function": "",
+            "read-function": "read",
+            "process-function": "process",
+            "write-function": "write",
+            "after-chunk-function": "",
+            "after-step-function": "afterStep",
+            "chunk-size": 10,
+            "transactional": "false",
+            "parameters": {
+                "parameter": [{
+                      "@name":"Enabled",
+                      "@type":"boolean",
+                      "@required":"false",
+                      "@trim":"false",
+                      "description":"Enable Product export."
+                  }]
+            },
+            "status-codes": {
+                "status": [
+                    {
+                        "@code": "ERROR",
+                        "description": "Used when the step failed with an error."
+                    },
+                    {
+                        "@code": "OK",
+                        "description": "Used when the step finished successfully."
+                    }
+                ]
+            }
+        }]
+    }
+}
