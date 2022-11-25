@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobs xmlns="http://www.demandware.com/xml/impex/jobs/2015-07-01">
+ 
+    <job job-id="Tallio Product Export" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_5832">
+                <context site-id="RefArch"/>
+            </contexts>
+            <flow-template template-id="template_5832">
+                <step step-id="Site Specific Feed" type="custom.Tallio-Product-Export" enforce-restart="true">
+                    <description/>
+                    <parameters>
+                        <parameter name="Enabled">true</parameter>
+                    </parameters>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <continue/>
+                        </on-exit>
+                    </rules>
+                </step>
+            </flow-template>
+        </split>
+        <split sequential="false">
+            <contexts template-ref="template_1324">
+                <context site-id="RefArch"/>
+            </contexts>
+            <flow-template template-id="template_1324">
+                <step step-id="Upload Products" type="custom.Tallio-Upload" enforce-restart="false">
+                    <description>Products Upload</description>
+                </step>
+            </flow-template>
+        </split>
+        <rules>
+            <on-running runtime-threshold="60m" enabled="true">
+                <mark-job-as-hanging/>
+                <send-mail>
+                    <from></from>
+                    <to>jobadmin@yourdomain.com</to>
+                </send-mail>
+            </on-running>
+            <on-retry enabled="true">
+                <send-mail>
+                    <from></from>
+                    <to>jobadmin@yourdomain.com</to>
+                </send-mail>
+            </on-retry>
+            <on-exit status="ERROR" enabled="true">
+                <send-mail>
+                    <from></from>
+                    <to>jobadmin@yourdomain.com</to>
+                </send-mail>
+            </on-exit>
+        </rules>
+		<triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2022-03-15Z</date-from>
+                    <date-to>2022-04-30Z</date-to>
+                    <start-time>12:00:00.000Z</start-time>
+                    <interval>12M</interval>
+                    <day-of-week>
+                        <weekday>Saturday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+</jobs>
