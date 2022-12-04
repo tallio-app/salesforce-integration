@@ -6,6 +6,7 @@ const ProductMgr = require('dw/catalog/ProductMgr');
 const Site = require('dw/system/Site');
 const Status = require('dw/system/Status');
 const Logger = require('dw/system/Logger').getLogger('Tallio', 'tallioProductExport.js');
+const constants = require('int_tallio/cartridge/scripts/TallioConstants');
 
 const XMLUtil = require('./util/XMLUtil');
 
@@ -23,9 +24,11 @@ function beforeStep(parameters, stepExecution) {
 	var calendar = new Calendar();
 	var timeStamp = StringUtils.formatCalendar(calendar, 'yyyyMMddhhmmss');
 	var siteID = Site.current.ID;
-	var path = 'tallio/product';
-	var prefix = 'tallioProducts';
-	var separator = '_';
+
+	var path = constants.EXPORT.PATH; 
+	var prefix = constants.EXPORT.PREFIX;
+	var separator = constants.EXPORT.SEPARATOR; 
+
     var filename = prefix + separator + siteID + separator + timeStamp + '.xml'; 
 
     xmlStreamWriter = XMLUtil.getSW(filename, path);
