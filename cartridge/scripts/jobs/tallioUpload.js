@@ -4,8 +4,9 @@ const File = require('dw/io/File');
 const Site = require('dw/system/Site');
 const Status = require('dw/system/Status');
 const Logger = require('dw/system/Logger').getLogger('Tallio', 'tallioUpload.js');
+const constants = require('int_tallio/cartridge/scripts/TallioConstants');
 
-var LocalServiceRegistry = require('dw/svc/LocalServiceRegistry');
+const LocalServiceRegistry = require('dw/svc/LocalServiceRegistry');
 let sftpService;
 
 function execute(parameters, stepExecution) {
@@ -17,24 +18,25 @@ function execute(parameters, stepExecution) {
 	}
 
     try {
-        var path = 'tallio/product'; //@TODO move to constant
-	    var prefix = 'tallioProducts'; //@TODO move to constant
-	    var separator = '_'; //move to constant
-        var pattern = prefix + separator + Site.current.ID;
-		var remotePath = 'upload'; //@TODO move to constant
+        const path = constants.EXPORT.PATH;
+	    const prefix = constants.EXPORT.PREFIX;
+	    const separator = constants.EXPORT.SEPARATOR;
+		const remotePath = 'upload'; //@TODO move to constant
+		
+        const pattern = prefix + separator + Site.current.ID;
         
-        var fileregex = new RegExp('^' + pattern + '_\\d{14}\\.xml$');
-		var localPathFile = new File([File.TEMP, path].join(File.SEPARATOR));
-		var localFiles = localPathFile.listFiles(function(f) {
+        const fileregex = new RegExp('^' + pattern + '_\\d{14}\\.xml$');
+		const localPathFile = new File([File.TEMP, path].join(File.SEPARATOR));
+		const localFiles = localPathFile.listFiles(function(f) {
 			return fileregex.test(f.name);
 		});
 
 		// Start get sftp service
-		var serviceID = "tallio.sftp.export." + Site.current.ID;
+		const serviceID = "tallio.sftp.export." + Site.current.ID;
 
 		sftpService = LocalServiceRegistry.createService(serviceID, {
 			createRequest: function (service) {
-				var args = Array.prototype.slice.call(arguments, 1);
+				const args = Array.prototype.slice.call(arguments, 1);
 				service.setOperation.apply(service, args);
 				return service;
 			},
@@ -45,11 +47,11 @@ function execute(parameters, stepExecution) {
 		//end ge sftp service
 
 		//start enter directory
-		var targetDirectory = remotePath.charAt(0) === File.SEPARATOR ? remotePath.substring(1) : remotePath;
+		const targetDirectory = remotePath.charAt(0) === File.SEPARATOR ? remotePath.substring(1) : remotePath;
 
 		Logger.info('target direcotry is:' + targetDirectory)
 
-		var directoryExists = sftpService.call('cd', targetDirectory);
+		const directoryExists = sftpService.call('cd', targetDirectory);
 
 		// check if directory is ok
 		if (!directoryExists.isOk()) {
@@ -66,9 +68,9 @@ function execute(parameters, stepExecution) {
 		//end enter directory
 
 		//Upload and delete local files
-        for(var i = 0; i < localFiles.length; i++) {
-        	var file = localFiles[i];
-        	var result = uploadFile(remotePath + '/', file);
+        for(let i = 0; i < localFiles.length; i++) {
+        	const file = localFiles[i];
+        	const result = uploadFile(remotePath + '/', file);
 
             if(!result.isOk()) {
             	Logger.error('Problem uploading file: ' + result.msg);

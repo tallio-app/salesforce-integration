@@ -10,10 +10,8 @@ const constants = require('int_tallio/cartridge/scripts/TallioConstants');
 
 const XMLUtil = require('./util/XMLUtil');
 
-var productIterator, productCount, xmlStreamWriter;
-var processedItem = 0;
-
-var currentType, openType;
+let productIterator, productCount, xmlStreamWriter;
+let processedItem = 0;
 
 function beforeStep(parameters, stepExecution) {
 	Logger.debug('***** Before Step *****');
@@ -21,15 +19,15 @@ function beforeStep(parameters, stepExecution) {
 	productIterator = ProductMgr.queryAllSiteProducts();
 	productCount = productIterator.count;
 
-	var calendar = new Calendar();
-	var timeStamp = StringUtils.formatCalendar(calendar, 'yyyyMMddhhmmss');
-	var siteID = Site.current.ID;
+	const calendar = new Calendar();
+	const timeStamp = StringUtils.formatCalendar(calendar, 'yyyyMMddhhmmss');
+	const siteID = Site.current.ID;
 
-	var path = constants.EXPORT.PATH; 
-	var prefix = constants.EXPORT.PREFIX;
-	var separator = constants.EXPORT.SEPARATOR; 
+	const path = constants.EXPORT.PATH; 
+	const prefix = constants.EXPORT.PREFIX;
+	const separator = constants.EXPORT.SEPARATOR; 
 
-    var filename = prefix + separator + siteID + separator + timeStamp + '.xml'; 
+    const filename = prefix + separator + siteID + separator + timeStamp + '.xml'; 
 
     xmlStreamWriter = XMLUtil.getSW(filename, path);
 	if(!xmlStreamWriter) {
@@ -42,7 +40,7 @@ function beforeStep(parameters, stepExecution) {
 function getTotalCount(parameters, stepExecution) {
 	Logger.debug('***** Get Total Count *****');
 
-	var total = productCount;
+	const total = productCount;
 
 	Logger.debug('Total Count: ' + total);
 	return total
@@ -65,26 +63,12 @@ function write(lines, parameters, stepExecution) {
 	Logger.debug('***** Write *****');
 	
 	[].forEach.call(lines, function (line) {
-		currentType = line.type;
-		if(!openType) {
-			XMLUtil.transition(false, currentType);
-			openType = currentType;
-		} else if(openType !== currentType) {
-			XMLUtil.transition(true, currentType);
-			openType = currentType;
-		}
-
 		XMLUtil.writeProductXML(line);
 	});
 }
 
 function afterStep(success, parameters, stepExecution) {
 	Logger.debug('***** After Step *****');
-
-	if(openType) {
-		XMLUtil.transition(true, null);
-		openType = null;
-	}
 
 	XMLUtil.endProductXML()
 	productIterator.close();
